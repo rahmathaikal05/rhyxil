@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Library Foto: Persahabatan</title>
+  <meta name="description" content="Kumpulan foto persahabatan yang dapat dicari, dilihat dalam galeri, atau sebagai collage." />
+  <style>
+    :root {
+      --bg-primary: #0f1724;
+      --bg-secondary: #0b1220;
+      --bg-gradient: linear-gradient(180deg, #071129 0%, #081827 100%);
+      --text-primary: #e6eef8;
+      --text-muted: #94a3b8;
+      --border-light: rgba(255, 255, 255, 0.05);
+      --border-input: rgba(255, 255, 255, 0.08);
+      --accent: #60a5fa;
+      --shadow-lightbox: 0 4px 20px rgba(0, 0, 0, 0.6);
+      --lightbox-bg: rgba(2, 6, 23, 0.9);
+      --transition: all 0.2s ease-in-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    header {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .lead {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border-light);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-primary);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: var(--transition);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-1px);
+    }
+
+    main {
+      padding: 18px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Gallery Tools */
+    .gallery-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .search {
+      flex: 1;
+      min-width: 200px;
+      padding: 8px 12px;
+      border: 1px solid var(--border-input);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 13px;
+      transition: var(--transition);
+    }
+
+    .search::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+    }
+
+    /* Grid Gallery */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      overflow: hidden;
+      padding: 8px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .thumb {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    .thumb:hover {
+      transform: scale(1.02);
+    }
+
+    .caption {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .no-results {
+      grid-column: 1 / -1;
+      color: var(--text-muted);
+      padding: 24px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Collage Section */
+    .collage-section {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .collage-section h3 {
+      margin-bottom: 12px;
+      font-size: 16px;
+      color: var(--text-primary);
+    }
+
+    .collage {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+    }
+
+    .collage img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: var(--lightbox-bg);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox-content {
+      text-align: center;
+      position: relative;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 82vh;
+      border-radius: 10px;
+      box-shadow: var(--shadow-lightbox);
+      transition: var(--transition);
+    }
+
+    .lb-meta {
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .close {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      z-index: 1001;
+    }
+
+    .close:hover {
+      background: rgba(0, 0, 0, 0.7);
+      transform: scale(1.1);
+    }
+
+    /* Footer */
+    footer {
+      padding: 20px 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-align: center;
+      border-top: 1px solid var(--border-light);
+      margin-top: 40px;
+    }
+
+    code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Media Queries */
+    @media (max-width: 768px) {
+      main {
+        padding: 12px;
+      }
+
+      header {
+        padding: 16px 12px;
+      }
+
+      .gallery-tools {
+        flex-direction: column;
+      }
+
+      .search {
+        min-width: auto;
+      }
+
+      .thumb {
+        height: 100px;
+      }
+
+      .collage {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .lightbox {
+        padding: 12px;
+      }
+
+      .lightbox img {
+        max-width: 96vw;
+        max-height: 70vh;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .collage {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Library Foto — Persahabatan</h1>
+      <p class="lead">Besto Frendo <br> Rahmat Haikal - Ilal Ilhamdi </p>
+    </div>
+    <button id="btnCollage" class="btn" aria-expanded="false">Tampilkan Collage</button>
+  </header>
+
+  <main>
+    <section class="gallery-tools">
+      <input id="search" class="search" type="search" placeholder="Cari caption atau nama..." aria-label="Cari foto" />
+    </section>
+
+    <section id="gallery" class="grid" aria-live="polite" role="region" aria-label="Galeri foto"></section>
+
+    <section id="collageSection" class="collage-section">
+      <h3>Collage — Semua Foto Bersama</h3>
+      <div id="collage" class="collage" role="img" aria-label="Collage foto persahabatan"></div>
+    </section>
+  </main>
+
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-labelledby="lbCaption">
+    <button id="closeLb" class="close" aria-label="Tutup lightbox">✕</button>
+    <div class="lightbox-content">
+      <img id="lbImage" src="" alt="" role="img" />
+      <div id="lbCaption" class="lb-meta"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Rahmat Haikal <code>@rahmathaikal05</code> - Ilal Ilhamdi <code>@ilalilhamdi/</code></p>
+  </footer>
+
+  <script>
+    // Data foto - Dapat diperluas atau diambil dari API eksternal untuk skalabilitas
+    const items = [
+      { id: '1', name: 'foto1.jpg', caption: 'Acara perpisahan', src: 'https://drive.google.com/uc?export=view&id=1g9ZlBl6HX8ABawN9sbfcirDwOCB7_UVs' },
+      { id: '2', name: 'foto2.jpg', caption: 'Liburan bersama', src: '' },
+      { id: '3', name: 'foto3.jpg', caption: 'Selfie rame-rame', src: '' },
+      { id: '4', name: 'foto4.jpg', caption: 'Hangout sore', src: '' },
+      { id: '5', name: 'foto5.jpg', caption: 'Makan malam bareng', src: '' },
+      { id: '6', name: 'foto6.jpg', caption: 'Jalan-jalan di kota', src: '' },
+      { id: '7', name: 'foto7.jpg', caption: 'Ulang tahun bersama', src: '' },
+      { id: '8', name: 'foto8.jpg', caption: 'Nongkrong di kafe', src: '' },
+      { id: '9', name: 'foto9.jpg', caption: 'Trip ke pantai', src: '' }
+    ];
+
+    // DOM Elements
+    const elements = {
+      gallery: document.getElementById('gallery'),
+      lightbox: document.getElementById('lightbox'),
+      lbImage: document.getElementById('lbImage'),
+      lbCaption: document.getElementById('lbCaption'),
+      closeLb: document.getElementById('closeLb'),
+      search: document.getElementById('search'),
+      collageSection: document.getElementById('collageSection'),
+      collage: document.getElementById('collage'),
+      btnCollage: document.getElementById('btnCollage')
+    };
+
+    // Utility Functions
+    const filterItems = (query = '') => {
+      const q = query.trim().toLowerCase();
+      return items.filter(item =>
+        (item.caption?.toLowerCase().includes(q) || false) ||
+        (item.name?.toLowerCase().includes(q) || false)
+      );
+    };
+
+    const createCard = (item) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', `Lihat foto: ${item.caption || item.name || 'Foto persahabatan'}`);
+
+      const img = document.createElement('img');
+      img.className = 'thumb';
+      img.src = item.src;
+      img.alt = item.caption || item.name || 'Foto persahabatan';
+      img.loading = 'lazy';
+      img.onerror = () => { img.alt = 'Gambar tidak dapat dimuat'; }; // Error handling untuk gambar
+
+      const caption = document.createElement('div');
+      caption.className = 'caption';
+      caption.textContent = item.caption || item.name || '—';
+
+      card.appendChild(img);
+      card.appendChild(caption);
+
+      // Event listeners untuk card (click dan keyboard)
+      const openHandler = () => openLightbox(item);
+      card.addEventListener('click', openHandler);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openHandler();
+        }
+      });
+
+      return card;
+    };
+
+    // Render Functions
+    const renderGallery = (filter = '') => {
+      elements.gallery.innerHTML = '';
+      const shownItems = filterItems(filter);
+
+      if (shownItems.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.className = 'no-results';
+        noResults.textContent = 'Tidak ada foto yang cocok dengan pencarian.';
+        elements.gallery.appendChild(noResults);
+        return;
+      }
+
+      shownItems.forEach(item => {
+        elements.gallery.appendChild(createCard(item));
+      });
+
+      // Announce untuk screen reader
+      elements.gallery.setAttribute('aria-label', `${shownItems.length} foto ditampilkan.`);
+    };
+
+    const renderCollage = () => {
+      elements.collage.innerHTML = '';
+      items.forEach(item => {
+        const img = document.createElement('img');
+        img.src = item.src;
+        img.alt = item.caption || item.name || '';
+        img.loading = 'lazy';
+        img.onerror = () => { img.alt = 'Gambar collage tidak dapat dimuat'; };
+        elements.collage.appendChild(img);
+      });
+    };
+
+    // Lightbox Functions
+    const openLightbox = (item) => {
+      elements.lbImage.src = item.src;
+      elements.lbImage.alt = item.caption || item.name || 'Foto persahabatan';
+      elements.lbCaption.textContent = item.caption || item.name || '';
+      elements.lightbox.classList.add('open');
+      elements.lightbox.focus(); // Accessibility: Focus on lightbox
+      document.body.style.overflow = 'hidden'; // Prevent body scroll
+    };
+
+    const closeLightbox = () => {
+      elements.lightbox.classList.remove('open');
+      document.body.style.overflow = ''; // Restore body scroll
+    };
+
+    // Event Handlers
+    elements.closeLb.addEventListener('click', closeLightbox);
+
+    elements.lightbox.addEventListener('click', (e) => {
+      if (e.target === elements.lightbox) {
+        closeLightbox();
+      }
+    });
+
+    // Keyboard support for lightbox
+    elements.lightbox.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      }
+    });
+
+    elements.search.addEventListener('input', (e) => {
+      renderGallery(e.target.value);
+    });
+
+    elements.btnCollage.addEventListener('click', () => {
+      const isHidden = elements.collageSection.style.display === 'none';
+      elements.collageSection.style.display = isHidden ? 'block' : 'none';
+      elements.btnCollage.textContent = isHidden ? 'Sembunyikan Collage' : 'Tampilkan Collage';
+      elements.btnCollage.setAttribute('aria-expanded', !isHidden);
+      if (isHidden) {
+        renderCollage();
+      }
+    });
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      renderGallery();
+      // Preload images if needed for performance (optional)
+    });
+
+    // Error handling global untuk gambar (opsional)
+    window.addEventListener('error', (e) => {
+      if (e.target.tagName === 'IMG') {
+        console.warn('Gagal memuat gambar:', e.target.src);
+      }
+    });
+  </script>
+</body>
+</html>
